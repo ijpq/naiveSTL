@@ -1,0 +1,78 @@
+# -----------------------------
+# cmake-format 配置示例
+# 文件名： .cmake-format
+# -----------------------------
+
+# 1. 缩进宽度（单位：空格）
+#    推荐与源代码保持一致，常见为 2 或 4
+indent: 4
+
+# 2. 换行最大宽度（过长时自动换行）
+line_width: 100
+
+# 3. 控制关键字与左括号间是否留空格
+#    可选值：'None' / 'Before' / 'After' / 'Both' / 'Smart'
+#    - Before： if (cond)  ==> 左侧代码末尾与 '(' 间留空格
+#    - After ：if( cond ) ==> '(' 与后续内容之间留空格
+#    - Both  ：if ( cond ) ==> 左右都留空格
+#    - None  ：if(cond)
+#    - Smart ：遇到 if( 后面是 '$' 或者变量名就自动判断
+space_before_paren: Before
+
+# 4. 在管道（pipe Symbol）两边是否留空格
+#    如 set( MY_VAR | ${X} )
+pipe_wrap: true
+
+# 5. 对齐关键字参数
+#    当函数调用参数较多时，是否对齐参数名与等号
+#    - all: 对所有关键字参数对齐
+#    - value: 只对有值的参数对齐（如 SET(VAR VAL)）
+#    - none:   不做对齐
+keyword_arg_align: all
+
+# 6. 在“函数名(参数…”或“函数名 (参数…”时，是否把左括号与函数名“贴”在一起
+#    - always       ：始终在函数名后留空格：add_executable ( APP  … )  
+#    - never        ：始终贴在一起      ：add_executable( APP  … )  
+#    - conditional  ：如果函数名为大写，则贴在一起；小写则留空格
+#      （一般所有 CMake 内置命令都是小写，也可以统一设为 never）
+executable_open_paren: never
+
+# 7. if/elseif/else 块内的大括号是否与关键字同一行
+#    - true  ：if(CONDITION) { … }  else { … }  
+#    - false ：if(CONDITION)
+#               {
+#                 …
+#               }
+#    仅影响大括号在 CMake 函数中的布局
+case_command_separator: false
+
+# 8. 预处理指令（如 #ifdef、#include）的位置缩进
+#    是否让注释在最左侧，还是要按照当前缩进层级留空格
+#    - left    ：所有以 # 开头的行都贴到最左  
+#    - indent  ：先按当前缩进层级再附加 #，如若在 if() 中则缩进两个空格后再写 #
+preprocessor_indent: left
+
+# 9. 是否在每个 CMake 命令之间留空行
+#    - always:     每个命令之间都加一个空行  
+#    - compact:    相似命令之间不加空行，不同逻辑块之间加空行  
+#    - preserve:   保持原来空行  
+function_sep: compact
+
+# 10. 对于长参数/列表，如何换行
+#     - wrap:      自动换行  
+#     - no-wrap:   不换行，超长就超长
+right_comment_padding: 1
+
+# 11. 是否把注释 “#” 后内容与命令对齐
+#     - always:    总是对齐  
+#     - if_long_line:  仅当注释超出行宽时才对齐  
+#     - preserve: 保持原样
+comment_align: if_long_line
+
+# 12. 自定义函数/命令的黑名单（不格式化，比如某些宏式定义）
+line_length: 120
+
+# -----------------------------
+# 更多配置选项请参考：
+#   https://github.com/cheshirekow/cmake_format/blob/master/.cmake-format.rst
+# -----------------------------
