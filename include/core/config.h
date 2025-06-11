@@ -6,6 +6,11 @@
 
 #include <cstdio>
 #include <cstddef>
+#include <iostream>
+#include <limits>
+#include <cstddef>
+#include <new>
+#include <stdexcept>
 
 
 inline bool is_constant_evaluated() {
