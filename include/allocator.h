@@ -21,9 +21,6 @@ struct allocator {
     using size_type       = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    // todo
-    // T& operator*() {}
-
     pointer allocate(size_type n) {
         if (n > max_size())
             throw std::bad_alloc();
@@ -32,7 +29,7 @@ struct allocator {
             return static_cast<pointer>(::operator new(n * sizeof(T)));
         } else {
             std::cout << "not constant evaluated" << std::endl;
-            if (alignof(T) > std::alignment_of_v<std::max_align_t>)
+            if (alignof(T) > alignof(std::max_align_t))
                 return static_cast<pointer>(::operator new(n * sizeof(T), std::align_val_t(alignof(T))));
             else
                 return static_cast<pointer>(::operator new(n * sizeof(T)));
@@ -41,6 +38,23 @@ struct allocator {
 
     size_type max_size() {
         return std::numeric_limits<size_type>::max() / sizeof(value_type);
+    }
+
+    void deallocate(pointer p, size_type n) {
+        if (is_constant_evaluated())
+            return ::operator delete(p);
+        else
+            return ::operator delete(p, alignof(T));
+    }
+
+    template<typename Tp, typename ...Args>
+    void construct(Tp* p, Args&&... args) {
+        ::new(p) Tp(std::forward<Args>(args)...);
+    }
+
+    template<typename Tp>
+    void destroy(Tp* p) {
+        p->~Tp();
     }
 };
 
