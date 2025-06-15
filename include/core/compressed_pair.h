@@ -1,9 +1,8 @@
 #include "core/config.h"
 #include <type_traits>
 
-
-struct _default_init_tag{};
-struct _default_value_tag{};
+struct _default_init_tag {};
+struct _default_value_tag {};
 template <typename T1, int index,
           bool isEmptyBase = std::is_empty_v<T1> && !std::is_final_v<T1> >
 struct compressed_pair_elem {
@@ -11,6 +10,7 @@ struct compressed_pair_elem {
     using reference       = T1&;
     using const_reference = const T1&;
     explicit compressed_pair_elem(const T1& _a) : _value(_a) {}
+    explicit compressed_pair_elem(T1&& _a) : _value(std::forward<T1>(_a)) {}
     compressed_pair_elem(_default_init_tag) {}
     compressed_pair_elem(_default_value_tag) : _value() {}
     reference get() {
@@ -26,11 +26,12 @@ private:
 
 template <typename T1, int index>
 struct compressed_pair_elem<T1, index, true> : private T1 {
-    using Base      = T1;
+    using Base            = T1;
     using reference       = T1&;
     using const_reference = const T1&;
 
-    explicit compressed_pair_elem(const T1& _a) : Base(_a){}
+    explicit compressed_pair_elem(const T1& _a) : Base(_a) {}
+    explicit compressed_pair_elem(T1&& _a) : Base(std::forward<T1>(_a)) {}
 
     reference get() {
         return static_cast<reference>(*this);
