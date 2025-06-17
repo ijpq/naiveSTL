@@ -28,5 +28,7 @@ struct is_allocator : std::false_type {};
 template<typename T>
 struct is_allocator<T, std::void_t<decltype(std::declval<T>().allocate(0))>> : std::true_type {};
 
+struct _default_init_tag {};
+struct _default_value_tag {};
 NAMESPACE_NAIVE_STD_END
 #endif /* C4045081_0B58_4947_A97A_3F02474E6069 */

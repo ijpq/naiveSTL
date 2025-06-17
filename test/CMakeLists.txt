@@ -3,6 +3,7 @@ file(
   RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/*)
 
+include_directories("${CMAKE_SOURCE_DIR}/include")
 foreach(CH ${CHILDREN})
   # 拼出绝对路径
   set(CH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${CH}")

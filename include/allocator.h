@@ -35,10 +35,12 @@ struct allocator {
                         // == a2 should be guaranteed. allocator from STL is
                         // stateless allocator
 
+    allocator() noexcept = default;
+
     pointer allocate(size_type n) {
         if (n > max_size())
             throw std::bad_alloc();
-        std::cout << "not constant evaluated" << std::endl;
+        // std::cout << "not constant evaluated" << std::endl;
         if (alignof(T) > alignof(std::max_align_t))
             return static_cast<pointer>(
                 ::operator new(n * sizeof(T), std::align_val_t(alignof(T))));
@@ -50,8 +52,11 @@ struct allocator {
         return std::numeric_limits<size_type>::max() / sizeof(value_type);
     }
 
-    void deallocate(pointer p, size_type n) {
-        return ::operator delete(p, alignof(T));
+    void deallocate(pointer p, size_type n) noexcept {
+        if (alignof(T) > alignof(std::max_align_t))
+            return ::operator delete(p, alignof(T));
+        else
+            return ::operator delete(p);
     }
 
     template <typename Tp, typename... Args>
@@ -60,11 +65,11 @@ struct allocator {
     }
 
     // move this func to traits after it's implemented
-    template <typename Tp, bool = true, typename... Args>
-    static void construct(Tp* p, Args&&... args) {
-        ::new (p) Tp(std::forward<Args>(args)...);
-        return;
-    }
+    // template <typename Tp, bool = true, typename... Args>
+    // static void construct(Tp* p, Args&&... args) {
+    //     ::new (p) Tp(std::forward<Args>(args)...);
+    //     return;
+    // }
 
     template <typename Tp>
     void destroy(Tp* p) {

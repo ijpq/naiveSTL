@@ -20,8 +20,8 @@ struct vector {
     using const_pointer   = typename __alloc_traits::const_pointer;
 
 private:
-    pointer                                  _begin = nullptr;
-    pointer                                  _end   = nullptr;
+    pointer _begin = nullptr;
+    pointer _end   = nullptr;
     compressed_pair<pointer, allocator_type> _end_cap{nullptr,
                                                       _default_init_tag()};
 
@@ -48,6 +48,19 @@ public:
         }
     }
 
+    ~vector() {
+        clear();
+        this->__alloc().deallocate(this->_begin, capacity());
+    }
+
+    size_type size() {
+        return static_cast<size_type>(_end - _begin);
+    }
+
+    size_type capacity() {
+        return static_cast<size_type>(_end_cap.first() - _begin);
+    }
+
     allocator_type& __alloc() {
         return this->_end_cap.second();
     }
@@ -68,12 +81,13 @@ public:
 #endif
     }
 
+    // pos tag of valid elems is updated by this, during construct
     struct ConstructTransaction {
         // denote the
-        vector&       _vec;
-        pointer       _pos; // end pos of valid elems
+        vector& _vec;
+        pointer _pos;       // end pos of valid elems
         const_pointer _end; // end pos of capacity
-        explicit ConstructTransaction(const vector& vec, size_type n) :
+        explicit ConstructTransaction(vector& vec, size_type n) :
         _vec(vec),
         _pos(vec._end),
         _end(vec._end + n) {}
@@ -86,11 +100,74 @@ public:
     void _construct_at_end(size_type n, value_type x) {
         ConstructTransaction tx{*this, n};
         for (pointer _pos = tx._pos; _pos != tx._end; tx._pos = ++_pos)
-            __alloc_traits::construct(_pos, x);
+            // __alloc_traits::construct(_pos, x);
+            this->__alloc().construct(_pos, x);
     }
 
     size_type max_size() {
         return __alloc_traits::max_size();
+    }
+
+    void _deconstruct_at_end(pointer new_last) {
+        pointer last = this->_end;
+        while (last != new_last) {
+            this->__alloc().destroy(--last);
+        }
+        this->_end = last;
+    }
+
+    void clear() {
+        _deconstruct_at_end(this->_begin);
+    }
+
+    void resize(size_type count) {
+        if (count == size())
+            return;
+        if (size() > count) {
+            _deconstruct_at_end(this->_begin + count);
+        } else if (size() < count) {
+            if (capacity() >= count) {
+                _construct_at_end(count - size(), T());
+            } else {
+                pointer origin_p       = this->_begin;
+                pointer origin_end     = this->_end;
+                size_type old_capacity = capacity();
+                _vallocate(count);
+                for (pointer op = origin_p; op != origin_end;
+                     op++, this->_end++) {
+                    // *(this->_end) = std::move(*op);
+                    this->__alloc().construct(this->_end, std::move(*op));
+                    this->__alloc().destroy(op);
+                }
+                this->__alloc().deallocate(origin_p, old_capacity);
+                _construct_at_end(count - size(), T());
+            }
+        }
+    }
+
+    void resize(size_type count, const value_type& value) {
+        if (count == size())
+            return;
+        if (size() > count) {
+            _deconstruct_at_end(this->_begin + count);
+        } else if (size() < count) {
+            if (capacity() >= count) {
+                _construct_at_end(count - size(), value);
+            } else {
+                pointer origin_p       = this->_begin;
+                pointer origin_end     = this->_end;
+                size_type old_capacity = capacity();
+                _vallocate(count);
+                for (pointer op = origin_p; op != origin_end;
+                     op++, this->_end++) {
+                    // *(this->_end) = std::move(*op);
+                    this->__alloc().construct(this->_end, std::move(*op));
+                    this->__alloc().destroy(op);
+                }
+                this->__alloc().deallocate(origin_p, old_capacity);
+                _construct_at_end(count - size(), value);
+            }
+        }
     }
 };
 

@@ -9,7 +9,6 @@
 # 会把最后一级目录名提取出来，比如 "example1"
 get_filename_component(TARGET_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 # message(WARNING "${TARGET_NAME}")
-include_directories("${CMAKE_SOURCE_DIR}/include")
 # ----------------------------------------------------------------------------
 # 1. 收集当前目录下的所有 .cpp 源文件（不递归子文件夹）
 # ----------------------------------------------------------------------------
