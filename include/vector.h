@@ -49,9 +49,18 @@ public:
     }
 
     ~vector() {
-        clear();
-        this->__alloc().deallocate(this->_begin, capacity());
+        destroy_vector (*this)();
     }
+    class destroy_vector {
+        vector& vec;
+
+    public:
+        destroy_vector(vector& _vec) : vec(_vec) {}
+        void operator()() {
+            vec.clear();
+            vec.__alloc().deallocate(vec._begin, vec.capacity());
+        }
+    };
 
     size_type size() {
         return static_cast<size_type>(_end - _begin);
@@ -70,8 +79,6 @@ public:
     }
 
     void _vallocate(size_type n) {
-        if (n > max_size())
-            throw std::length_error("");
         typename __alloc_traits::pointer p = _end_cap.second().allocate(n);
         _begin                             = p;     // begin pos of valid elems
         _end                               = p;     // end pos of valid elems

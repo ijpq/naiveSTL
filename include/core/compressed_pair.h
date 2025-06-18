@@ -10,15 +10,24 @@ struct compressed_pair_elem {
     using const_reference = const T1&;
     compressed_pair_elem() : _value() {}
 
-    template <typename U, typename = std::enable_if_t<
-                              std::is_same_v<U, _default_init_tag> ||
-                              std::is_same_v<U, _default_value_tag>>>
+    template <typename U,
+              std::enable_if_t<
+                  (std::is_same_v<std::decay_t<U>, _default_init_tag> ||
+                   std::is_same_v<std::decay_t<U>, _default_value_tag>) &&
+                      std::is_default_constructible_v<T1>,
+                  long> = 0>
     explicit compressed_pair_elem(U&& _) : _value() {}
+
+    template <typename U,
+              std::enable_if_t<
+                  !std::is_same_v<std::decay_t<U>, _default_init_tag> &&
+                      !std::is_same_v<std::decay_t<U>, _default_value_tag> &&
+                      std::is_constructible_v<T1, U&&>,
+                  int> = 0>
+    compressed_pair_elem(U&& _u) : _value(_u) {}
 
     explicit compressed_pair_elem(const T1& _a) : _value(_a) {}
     explicit compressed_pair_elem(T1&& _a) : _value(std::forward<T1>(_a)) {}
-    // compressed_pair_elem(_default_init_tag) {}
-    // compressed_pair_elem(_default_value_tag) : _value() {}
     reference get() {
         return _value;
     }
@@ -36,14 +45,16 @@ struct compressed_pair_elem<T1, index, true> : private T1 {
     using reference       = T1&;
     using const_reference = const T1&;
 
+    template <std::enable_if_t<
+                  std::is_default_constructible_v<std::decay_t<Base>>, int> = 0>
     compressed_pair_elem() : Base() {}
-    explicit compressed_pair_elem(const T1& _a) : Base(_a) {}
-    explicit compressed_pair_elem(T1&& _a) : Base(std::forward<T1>(_a)) {}
 
-    template <typename U, typename = std::enable_if_t<
-                              std::is_same_v<U, _default_init_tag> ||
-                              std::is_same_v<U, _default_value_tag>>>
-    explicit compressed_pair_elem(U&& _) : Base() {}
+    template <
+        typename U,
+        std::enable_if_t<(std::is_same_v<std::decay_t<U>, _default_init_tag> ||
+                          std::is_same_v<std::decay_t<U>, _default_value_tag>),
+                         int> = 0>
+    explicit compressed_pair_elem(U&& _u) : Base() {}
 
     reference get() {
         return static_cast<reference>(*this);

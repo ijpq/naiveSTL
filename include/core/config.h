@@ -30,5 +30,19 @@ struct is_allocator<T, std::void_t<decltype(std::declval<T>().allocate(0))>> : s
 
 struct _default_init_tag {};
 struct _default_value_tag {};
+
+template<typename Rollback>
+struct RAIIRollback {
+    
+    RAIIRollback(Rollback _rollback) : rollback(_rollback) {}
+
+    ~RAIIRollback() {rollback();}
+    Rollback rollback;
+};
+
+template<typename T>
+RAIIRollback<T> registerRollback(T func) {
+    return RAIIRollback(func);
+}
 NAMESPACE_NAIVE_STD_END
 #endif /* C4045081_0B58_4947_A97A_3F02474E6069 */
