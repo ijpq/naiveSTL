@@ -35,7 +35,9 @@ struct allocator {
                         // == a2 should be guaranteed. allocator from STL is
                         // stateless allocator
 
-    allocator() noexcept = default;
+    allocator() noexcept              = default;
+    allocator(const allocator& other) = default;
+    allocator(allocator&& other)      = default;
 
     pointer allocate(size_type n) {
         if (n > max_size())

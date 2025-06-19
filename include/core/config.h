@@ -12,6 +12,7 @@
 #include <new>
 #include <stdexcept>
 #include <type_traits>
+#include <algorithm>
 
 NAMESPACE_NAIVE_STD_BEGIN
 inline constexpr bool is_constant_evaluated() {
@@ -34,15 +35,23 @@ struct _default_value_tag {};
 template<typename Rollback>
 struct RAIIRollback {
     
-    RAIIRollback(Rollback _rollback) : rollback(_rollback) {}
+    template<typename U>
+    RAIIRollback(U&& _rollback) : rollback(std::forward<U>(_rollback)), is_complete(false) {}
 
-    ~RAIIRollback() {rollback();}
+    ~RAIIRollback() {
+        if (!is_complete)
+            rollback();
+    }
+    void complete() {
+        is_complete = true;
+    }
+    bool is_complete;
     Rollback rollback;
 };
 
 template<typename T>
-RAIIRollback<T> registerRollback(T func) {
-    return RAIIRollback(func);
+RAIIRollback<T> registerRollback(T&& func) {
+    return RAIIRollback<T>(std::forward<T>(func));
 }
 NAMESPACE_NAIVE_STD_END
 #endif /* C4045081_0B58_4947_A97A_3F02474E6069 */

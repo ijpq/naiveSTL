@@ -56,6 +56,12 @@ struct compressed_pair_elem<T1, index, true> : private T1 {
                          int> = 0>
     explicit compressed_pair_elem(U&& _u) : Base() {}
 
+    compressed_pair_elem(const compressed_pair_elem& other) :
+    Base(static_cast<const Base&>(other)) {}
+
+    compressed_pair_elem(const Base& b) : Base(b) {}
+    compressed_pair_elem(Base&& b) : Base(std::move(b)) {}
+
     reference get() {
         return static_cast<reference>(*this);
     }
@@ -80,8 +86,17 @@ struct compressed_pair : private compressed_pair_elem<T1, 0>,
     typename Base1::reference first() {
         return static_cast<Base1&>(*this).get();
     }
+
     typename Base2::reference second() {
         return static_cast<Base2&>(*this).get();
+    }
+
+    typename Base1::const_reference first() const {
+        return static_cast<const Base1&>(*this).get();
+    }
+
+    typename Base2::const_reference second() const {
+        return static_cast<const Base2&>(*this).get();
     }
 };
 NAMESPACE_NAIVE_STD_END
