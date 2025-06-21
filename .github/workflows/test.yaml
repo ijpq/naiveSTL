@@ -26,5 +26,4 @@ jobs:
 
     - name: Run tests with ASan
       run: |
-        cd build
-        ASAN_OPTIONS=detect_leaks=1 ./test/allocator/allocator
+        ASAN_OPTIONS=detect_leaks=1 bash test.sh

@@ -104,16 +104,18 @@ void test_vector_copy_move() {
     std::cout << "[PASS] test_vector_copy_move\n";
 }
 
-// void test_vector_iterator() {
-//     nstd::vector<int> v;
-//     v.push_back(1);
-//     v.push_back(2);
-//     v.push_back(3);
+void test_vector_iterator() {
+    nstd::vector<int> v;
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
-//     int sum = 0;
-//     for (int x : v) sum += x;
-//     assert(sum == 6);
-// }
+    int sum = 0;
+    for (int x : v)
+        sum += x;
+    assert(sum == 6);
+    std::cout << "[PASS] test_vector_iterator\n";
+}
 
 void test_vector_empty_resize() {
     nstd::vector<int> v;
@@ -200,6 +202,7 @@ int main() {
     test_vector_lifecycle();
     test_vector_copy_move();
     test_compare_behavior();
+    test_vector_iterator();
     std::cout << "All tests passed!\n";
     return 0;
 }

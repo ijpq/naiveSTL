@@ -1,9 +1,9 @@
 #include "allocator.h"
 #include "core/compressed_pair.h"
 #include "core/config.h"
+#include "iterator.h"
 #include <initializer_list>
 #include <stdexcept>
-#include <type_traits>
 
 NAMESPACE_NAIVE_STD_BEGIN
 template <typename T, typename _Allocator = allocator<T>>
@@ -20,6 +20,8 @@ struct vector {
     using difference_type = typename __alloc_traits::difference_type;
     using pointer         = typename __alloc_traits::pointer;
     using const_pointer   = typename __alloc_traits::const_pointer;
+    using iterator        = Iterator<value_type>;
+    using const_iterator  = const Iterator<value_type>;
 
 private:
     pointer _begin = nullptr;
@@ -331,6 +333,20 @@ public:
 
     value_type& operator[](size_type index) {
         return *(this->_begin + index);
+    }
+
+    iterator begin() {
+        return iterator(this->_begin);
+    }
+    const_iterator begin() const {
+        return const_iterator(this->_begin);
+    }
+
+    iterator end() {
+        return iterator(this->_end);
+    }
+    const_iterator end() const {
+        return const_iterator(this->_end);
     }
 };
 
